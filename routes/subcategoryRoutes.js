@@ -1,13 +1,10 @@
-const express = require('express');
-const router = express.Router();
-const subcategoryController = require('../controllers//subcategoryController'); // Create subcategory controller
+import {Router} from 'express'
+import {getSubcategories,createSubcategory , updateSubcategory, deleteSubcategory} from '../controllers/subcategoryController.js'
+const router = Router()
 
-router.route('/')
-  .get(subcategoryController.getSubcategories)
-  .post(subcategoryController.createSubcategory);
 
-router.route('/:id')
-  .put(subcategoryController.updateSubcategory)
-  .delete(subcategoryController.deleteSubcategory);
 
-module.exports = router;
+router.route('/').get(getSubcategories).post(createSubcategory);
+router.route('/:id').put(updateSubcategory).delete(deleteSubcategory);
+
+export default router

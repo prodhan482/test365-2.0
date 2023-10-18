@@ -1,102 +1,101 @@
-const asyncHandler = require('express-async-handler');
-const Category = require('../models/categoryModel');
-const Product = require('../models/productModel');
-const Subcategory = require('../models/subcategoryModel');
+import asyncHandler from 'express-async-handler';
+import Category from '../models/categoryModel.js';
 
 
-// @desc    Get all categories
-// @route   GET /api/categories
-// @access  Private
 const getCategories = asyncHandler(async (req, res) => {
-    const categories = await Category.find();
+  const categories = await Category.find();
 
-    res.status(200).json(categories);
+  res.status(200).json(categories);
 });
 
-// @desc    Create a category
-// @route   POST /api/categories
-// @access  Private
+
 const createCategory = asyncHandler(async (req, res) => {
-    if (!req.body.name) {
-        res.status(400);
-        throw new Error('Please provide a category name');
+  const {
+    category_name,
+    parent_id,
+    tree_path,
+    level,
+    Enable,
+    include_menu,
+    category_image,
+    created_by,
+    updated_by,
+  } = req.body;
+
+  if (!category_name) {
+    res.status(400).json({ error: 'Category name is required' });
+  } else if (parent_id) {
+    const parentCategory = await Category.findById(parent_id);
+    if (parentCategory) {
+      if (parentCategory.parent_id && parentCategory.parent_id.equals(parent_id)) {
+        res.status(400).json({ error: 'A child cannot be a parent of its own parent' });
+        return;
+      }
     }
+  }
 
-    const category = await Category.create({
-        name: req.body.name,
-    });
+  const category = await Category.create({
+    category_name,
+    parent_id,
+    tree_path,
+    level,
+    Enable,
+    include_menu,
+    category_image,
+    created_by,
+    updated_by,
+  });
 
-    res.status(201).json(category);
-});
-
-// @desc    Update a category
-// @route   PUT /api/categories/:id
-// @access  Private
-const updateCategory = asyncHandler(async (req, res) => {
-    const category = await Category.findById(req.params.id);
-
-    if (!category) {
-        res.status(400);
-        throw new Error('Category not found');
-    }
-
-    const updatedCategory = await Category.findByIdAndUpdate(req.params.id, req.body, {
-        new: true,
-    });
-
-    res.status(200).json(updatedCategory);
-});
-
-// @desc    Delete a category
-// @route   DELETE /api/categories/:id
-// @access  Private
-const deleteCategory = asyncHandler(async (req, res) => {
-    const category = await Category.findById(req.params.id);
-
-    if (!category) {
-        res.status(400);
-        throw new Error('Category not found');
-    }
-
-    await Category.deleteOne({ _id: req.params.id });
-
-    res.status(200).json({ id: req.params.id });
+  res.status(201).json(category);
 });
 
 
-// // @desc    Delete a category
-// // @route   DELETE /api/categories/:id
-// // @access  Public
-// const deleteCategory = asyncHandler(async (req, res) => {
-//     const categoryId = req.params.id;
-  
-//     try {
-//       // Find the category
-//       const category = await Category.findById(categoryId);
-  
-//       if (!category) {
-//         return res.status(404).json({ error: 'Category not found' });
-//       }
-  
-//       // Delete associated products
-//       await Product.deleteMany({ category: categoryId });
-  
-//       // Delete associated subcategories
-//       await Subcategory.deleteMany({ parentCategory: categoryId });
-  
-//       // Now, delete the category using the remove function
-//       await category.remove();
-  
-//       res.status(204).json({ message: 'Category and associated products/subcategories removed' });
-//     } catch (error) {
-//       return res.status(500).json({ error: 'Internal Server Error' });
-//     }
-//   });
-  
+const updateCategoryById = asyncHandler(async (req, res) => {
+  const categoryId = req.params.id;
+  const category = await Category.findById(categoryId);
 
-module.exports = {
-    getCategories,
-    createCategory,
-    updateCategory,
-    deleteCategory,
-};
+  if (!category) {
+    res.status(404).json({ error: 'Category not found' });
+    return;
+  }
+
+
+  if (req.body.parent_id) {
+    const parentCategory = await Category.findById(req.body.parent_id);
+    if (parentCategory) {
+      if (parentCategory.parent_id && parentCategory.parent_id.equals(categoryId)) {
+        res.status(400).json({ error: 'A child cannot be a parent of its own parent' });
+        return;
+      }
+    }
+  }
+
+
+  category.category_name = req.body.category_name;
+  category.parent_id = req.body.parent_id;
+  category.tree_path = req.body.tree_path;
+  category.level = req.body.level;
+  category.Enable = req.body.Enable;
+  category.include_menu = req.body.include_menu;
+  category.category_image = req.body.category_image;
+  category.updated_by = req.body.updated_by;
+
+  await category.save();
+
+  res.status(200).json(category);
+});
+
+
+const deleteCategoryById = asyncHandler(async (req, res) => {
+  const categoryId = req.params.id;
+  const category = await Category.findById(categoryId);
+
+  if (!category) {
+    res.status(404).json({ error: 'Category not found' });
+  } else {
+    await category.remove();
+    res.status(204).json({ message: 'Category removed' });
+  }
+});
+
+export { getCategories, createCategory, updateCategoryById, deleteCategoryById };

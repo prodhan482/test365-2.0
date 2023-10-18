@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "backend api server",
   "main": "server.js",
+  "type": "module",
   "scripts": {
-    "start": "node backend/server.js",
-    "server": "nodemon backend/server.js"
+    "start": "node server.js",
+    "server": "nodemon server.js"
   },
   "author": "bazar365",
   "license": "MIT",

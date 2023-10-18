@@ -1,46 +1,14 @@
-// const express = require('express')
-// const router = express.Router()
-// const { 
-//     getProducts, 
-//     setProduct, 
-//     updateProduct,
-//     deleteProduct,
-// } = require('../controllers/productController')
+import {Router} from 'express'
+import {getProducts, createProduct, updateProductById, deleteProductById} from '../controllers/productController.js'
 
-
-// // router.post('/', (req, res) => {
-// //     res.status(200).json({ message: 'Set Products' })
-// // })
-
-// // router.put('/:id', (req, res) => {
-// //     res.status(200).json({ message: `Update products ${req.params.id}` })
-// // })
-
-// // router.delete('/:id', (req, res) => {
-// //     res.status(200).json({ message: `Delete products ${req.params.id}` })
-// // })
-
-
-
-// router.route('/').get(getProducts).post(setProduct)
-// router.route('/:id').delete(deleteProduct).put(updateProduct)
-
-
-// module.exports = router 
+const router = Router()
 
 
 
 
-const express = require('express');
-const router = express.Router();
-const productController = require('../controllers/productController');
+router.route('/').get(getProducts).post(createProduct)
+router.route('/:id').delete(deleteProductById).put(updateProductById)
 
-router.route('/')
-  .get(productController.getProducts)
-  .post(productController.setProduct);
 
-router.route('/:id')
-  .put(productController.updateProduct)
-  .delete(productController.deleteProduct);
+export default router 
 
-module.exports = router;

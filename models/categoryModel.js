@@ -1,23 +1,45 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
-const categorySchema = new mongoose.Schema({
-  name: {
+const { Schema, model } = mongoose;
+
+const categorySchema = new Schema({
+  category_name: {
     type: String,
     required: true,
   },
-  parent: {
+  parent_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Category',
   },
+  tree_path: {
+    type: String,
+  },
+  level: {
+    type: Number,
+    default: 0,
+  },
+  Enable: {
+    type: Boolean,
+    default: true,
+  },
+  include_menu: {
+    type: Boolean,
+    default: true,
+  },
+  category_image: {
+    type: String,
+  },
+  created_by: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  },
+  updated_by: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  },
+},
+{
+  timestamps: true,
 });
 
-// Define a pre middleware to delete products and subcategories when a category is deleted
-categorySchema.pre('remove', async function (next) {
-    // Assuming 'Product' and 'Subcategory' are your respective model names
-    await this.model('Product').deleteMany({ category: this._id });
-    await this.model('Category').deleteMany({ parentCategory: this._id });
-  
-    next();
-  });
-
-module.exports = mongoose.model('Category', categorySchema);
+export default model('Category', categorySchema);
