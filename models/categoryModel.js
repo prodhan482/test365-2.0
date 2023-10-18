@@ -10,6 +10,7 @@ const categorySchema = new Schema({
   parent_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Category',
+    default: null, 
   },
   tree_path: {
     type: String,
@@ -40,6 +41,20 @@ const categorySchema = new Schema({
 },
 {
   timestamps: true,
+});
+
+categorySchema.pre('save', async function (next) {
+  if (!this.parent_id) {
+    this.tree_path = this._id.toString();
+  } else {
+    const parent = await this.constructor.findById(this.parent_id);
+    if (!parent) {
+      next(new Error('Parent category not found'));
+      return;
+    }
+    this.tree_path = `${parent.tree_path}/${this._id}`;
+  }
+  next();
 });
 
 export default model('Category', categorySchema);

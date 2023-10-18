@@ -1,13 +1,11 @@
 import asyncHandler from 'express-async-handler';
 import Category from '../models/categoryModel.js';
 
-
 const getCategories = asyncHandler(async (req, res) => {
   const categories = await Category.find();
 
   res.status(200).json(categories);
 });
-
 
 const createCategory = asyncHandler(async (req, res) => {
   const {
@@ -49,7 +47,6 @@ const createCategory = asyncHandler(async (req, res) => {
   res.status(201).json(category);
 });
 
-
 const updateCategoryById = asyncHandler(async (req, res) => {
   const categoryId = req.params.id;
   const category = await Category.findById(categoryId);
@@ -58,7 +55,6 @@ const updateCategoryById = asyncHandler(async (req, res) => {
     res.status(404).json({ error: 'Category not found' });
     return;
   }
-
 
   if (req.body.parent_id) {
     const parentCategory = await Category.findById(req.body.parent_id);
@@ -69,7 +65,6 @@ const updateCategoryById = asyncHandler(async (req, res) => {
       }
     }
   }
-
 
   category.category_name = req.body.category_name;
   category.parent_id = req.body.parent_id;
@@ -84,7 +79,6 @@ const updateCategoryById = asyncHandler(async (req, res) => {
 
   res.status(200).json(category);
 });
-
 
 const deleteCategoryById = asyncHandler(async (req, res) => {
   const categoryId = req.params.id;
